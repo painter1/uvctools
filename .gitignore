@@ -1,0 +1,10 @@
+*.pyc
+build
+*.pyo
+*~
+*swp*
+*.o
+git.py
+.DS_Store
+.metadata/
+.project
