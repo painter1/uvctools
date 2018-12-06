@@ -10,13 +10,14 @@ if len(sys.argv)<2 :
 file = sys.argv[1]
 # print "plotting from",file
 f=cdms2.open(file)
-if True:  # <<<< take this out when Qt works again <<<<
-    v=vcs.init()
+v=vcs.init()
 
-tlt=f['eqmsu_tlt']
-print tlt.shape
-len0 = tlt.shape[0]
-v.plot(tlt[0:len0:12,0,0])
+varn = os.path.basename(file).split('_')[0]
+# ... tlt for file=~/MSU_out/tlt_both___CanESM2.r10i1p1.historical-r5.mon.195001-202012.nc
+var=f['eqmsu_'+varn]  # e.g. f['eqmsu_tlt']
+print var.shape
+len0 = var.shape[0]
+v.plot(var[0:len0:12,0,0])
 raw_input("Press Return to finish...")
 
 fl = open(os.path.expanduser('~/msu/msu.log'))
