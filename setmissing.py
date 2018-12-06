@@ -51,6 +51,7 @@ if len(varv.shape)==3 or  len(varv.shape)==4:
                             varm[i,j,k,l] = True
     var.setMissing(new_FillValue)  # If done sooner, would set mask to all False.
     # You cannot set explicitly _FillValue except when creating variable.
+    # (added 2018.01.23: I think that you can now, the _setmissing() method does it on a TransientVariable as of cdat 2.8
     # However, if the _FillValue attribute does NOT exist, then when the file is re-opened,
     # var._FillValue has the correct value in Python.
     # This _FillValue doesn't show up with ncdump.
