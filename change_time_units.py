@@ -1,17 +1,21 @@
+#!/usr/bin/env python
+
 """This changes the time units of a ts file, i.e. a file containing variables specified below, e.g. 'ts'
 with a 'time' axis whose bounds name is also specified below.
  This script should be called with a file name argument.  Thus the usage is like:
-  python change_time_units.py filename
+   change_time_units.py filename
 Note that the file gets changed!  See below for how to specify the variable name and other
 characteristics of the file."""
 # To specify the new time units, change the next line:
 units = 'months since 1800'
 # For a file with a variable other than 'ts', change the next line:
-#varname = 'ts'
-varname = 'tmt'
+varname = 'ta'
+#varname = 'tmt'
 # For a file with a time bounds variable other than 'time_bnds', change the next line:
-#time_bnds_name = 'time_bnds'
-time_bnds_name = 'time_bounds'
+time_bnds_name = 'time_bnds'
+#time_bnds_name = 'time_bounds'
+# To add something to the time and time bounds axis, specify a number here (in the original units):
+add2time = False
 
 import sys, os
 if len(sys.argv)<2:
@@ -21,10 +25,11 @@ else:
     filename = sys.argv[1]
 if len(sys.argv)>2:
     varname = sys.argv[2]
+print "filename=",filename,"varname=",varname
 
 import cdms2, cdtime, numpy
 from cdms2.error import CDMSError
-import debug
+import pdb, debug
 
 def toRelativeTime(time_bnds, units, oldunits=None):
         """Convert values of time_bnds to another unit possibly in another calendar.
@@ -52,9 +57,13 @@ oldunits = t.units
 t.toRelativeTime(units)
 # ... Note however that this change in t doesn't take effect until f.close().
 if hasattr( t, 'bounds' ):
+    time_bnds_name = t.bounds
     time_bnds=f[time_bnds_name]
+    if not hasattr(time_bnds,'units'):
+        time_bnds.units = oldunits
     print "jfp Found time_bnds=",time_bnds_name,time_bnds.__class__.__name__
     print "jfp time_bnds units=",time_bnds.units
+    toRelativeTime( time_bnds, units, time_bnds.units)
 else:
     boundsax = f.getBoundsAxis(2,boundid='bounds')  # not tested yet
     # boundsax = cdms2.createAxis( [0,1], id='bounds' )
@@ -64,7 +73,11 @@ else:
     time_bnds.units = units
     print "jfp time_bnds units=",time_bnds.units
     f.write(time_bnds)
-toRelativeTime( time_bnds, units, oldunits)
+
+if add2time:
+    t += add2time
+    time_bnds += add2time
+
 print "jfp f[",time_bnds_name,"]=",f[time_bnds_name].id,f[time_bnds_name].__class__.__name__
 print "jfp f[",time_bnds_name,"] units=",f[time_bnds_name].units
 
