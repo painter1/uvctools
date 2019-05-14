@@ -5,11 +5,10 @@
 # Output: creates a new file, named sftlf.nc, containing the CMIP-5 variable sftlf.
 #     This is land area percentage.
 
-import argparse
+import os, sys, argparse
 import cdms2
 
-def make_sftlf_file( infilen ):
-    outfilen = 'sftlf.nc'
+def make_sftlf_file( infilen, outfilen ):
     print 'Writing from %s to %s' % (infilen, outfilen)
 
     # Write output in NetCDF-3 format for compatibility with Ben Santer's software:
@@ -29,7 +28,9 @@ def make_sftlf_file( infilen ):
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser( description="Convert LANDFRAC to sftlf in a new file" )
-    p.add_argument( 'infilen', metavar='LANDFRAC_file', type=str, nargs='?',
-                    default='LANDFRAC.nc', help="name if LANDFRAC file" )
-    args = p.parse_args()
-    make_sftlf_file( args.infilen )
+    p.add_argument( "--infiles", dest="infiles", help="Names of input LANDFRAC files (mandatory)",
+                    nargs='+', required=True )
+    args = p.parse_args(sys.argv[1:])
+    for infilen in args.infiles:
+        outfilen = os.path.basename(infilen).replace('LANDFRAC','sftlf')
+        make_sftlf_file( infilen, outfilen )
