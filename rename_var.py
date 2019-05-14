@@ -3,9 +3,10 @@
 # Writes a copy of a file with one variable renamed.  Only that one variable, and supporting
 # variables such as axes, will be written; any others will be ignored.  Most attributes also
 # will be ignored.
+# The input file can be in any directory.  The output file is written to the current directory.
 # This script is filled with ad-hoc fixes to other data oddities.  Read this before running it!
 
-import sys, argparse, numpy
+import os, sys, argparse, numpy
 import cdms2, cdutil
 from pprint import pprint
 import debug
@@ -15,7 +16,7 @@ cdms2.setNetcdfDeflateLevelFlag(0)
 cdms2.setNetcdfShuffleFlag(0)   
 
 def rename_variable( invar, outvar, infn ):
-    outfn = '_'.join([outvar,infn])
+    outfn = '_'.join([outvar,os.path.basename(infn)])
     print 'Writing from %s to %s' % (infn, outfn)
     fi=cdms2.open(infn)
     fo=cdms2.open(outfn,'w')
@@ -41,9 +42,9 @@ def rename_variable( invar, outvar, infn ):
 
     # Change pressure units, if any, from Pa to mbar.  If necessary, I'll generalize this later.
     # Why mbar?  It's what we get if we use verticalT.py to convert hybrid levels to pressure levels.
-    #if hasattr( V, 'units' ) and V.units=='Pa':
-    #    V = V * 0.01
-    #    V.units = 'mbar'
+    if hasattr( V, 'units' ) and V.units=='Pa':
+        V = V * 0.01
+        V.units = 'mbar'
 
     # ...End of fixups, now write the variable to the new file, using the new name.
 
