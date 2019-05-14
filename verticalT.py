@@ -1,9 +1,16 @@
-import debug
-import sys, argparse
+import debug, pdb
+import os, sys, argparse
 import cdms2, cdutil
 from genutil import udunits
 
 if True:
+    levels_std = [ 1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150,
+                   100, 70, 50, 30, 20, 10, 7, 5, 3, 2, 1]
+    print "22 levels as in CanESM large ensemble"
+    print ">>>>"
+    print ">>>> WARNING, NON-STANDARD LEVELS <<<<"
+    print "<<<<"
+elif False:
     # normal:
     levels_std = [ 1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150,
                    100, 70, 50, 30, 20, 10]
@@ -72,16 +79,21 @@ if __name__ == '__main__':
     args = p.parse_args(sys.argv[1:])
     print "input args=", args
     for i,infn in enumerate(args.infiles):
+        print "T file=",infn
         f = cdms2.open(infn)
         if args.psfiles is not None and len(args.psfiles)==len(args.infiles):
+            print "PS file=",args.psfiles[i]
             g = cdms2.open( args.psfiles[i] )
             gvars = g.variables.keys()
         else:
+            print "ps files don't match T files"
+            pdb.set_trace()
             gvars = []
         fvars = f.variables.keys()
         print "jfp fvars=",fvars
         print "jfp gvars=",gvars
-        if 'T' in fvars:    T = f('T')
+        #if 'T' in fvars:    T = f('T')
+        if 'T' in fvars:    T = f['T']
         elif 'ta' in fvars: T = f('ta')
         else:               T = None
         if 'hyam' in fvars: hyam = f('hyam')
@@ -95,6 +107,7 @@ if __name__ == '__main__':
         else:               ps = None
         if T is None: continue
 
+        pdb.set_trace()
         newT = verticalize( T, hyam, hybm, ps )
 
         if newT.getTime() is not None:
@@ -106,7 +119,7 @@ if __name__ == '__main__':
         cdms2.setNetcdf4Flag(0)
         cdms2.useNetcdf3()
 
-        g = cdms2.open( 'ta_'+infn, 'w' )
+        g = cdms2.open( 'ta_'+os.path.basename(infn), 'w' )
         g.write( newT, id='ta' )
         g.close()
         f.close()
