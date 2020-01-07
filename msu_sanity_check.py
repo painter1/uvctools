@@ -14,10 +14,14 @@ v=vcs.init()
 
 varn = os.path.basename(file).split('_')[0]
 # ... tlt for file=~/MSU_out/tlt_both___CanESM2.r10i1p1.historical-r5.mon.195001-202012.nc
-var=f['eqmsu_'+varn]  # e.g. f['eqmsu_tlt']
+var=f['eqmsu_'+varn]  # E.g. f['eqmsu_tlt']
 print var.shape
 len0 = var.shape[0]
-v.plot(var[0:len0:12,0,0])
+if len0>=24:
+    v.plot(var[0:len0:12,0,0])
+else:
+    v.plot(var[:,int(0.7*var.shape[1]),0])
+    #v.plot(var[:,0,0])
 raw_input("Press Return to finish...")
 
 fl = open(os.path.expanduser('~/msu/msu.log'))
